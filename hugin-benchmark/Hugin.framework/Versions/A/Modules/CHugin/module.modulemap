@@ -1,0 +1,5 @@
+module CHugin [extern_c] {
+    header "hugin.h"
+    link "z"
+    export *
+}
