@@ -27,15 +27,15 @@ class HuginDecisionEngine: ObservableObject {
             let newDomain = try Domain(license:newLicense)
             self.domain = newDomain
             
-            // isRaining node
-            let rainNode = try newDomain.newNode(category: Node.Category.chance, kind: Node.Kind.discrete)
-            try rainNode.setNumberOfStates(2)
-            self.isRainingNode = rainNode
-            
             // sprinklerOn node
             let sprinklerNode = try newDomain.newNode(category: Node.Category.chance, kind: Node.Kind.discrete)
             try sprinklerNode.setNumberOfStates(2)
             self.sprinklerOnNode = sprinklerNode
+            
+            // isRaining node
+            let rainNode = try newDomain.newNode(category: Node.Category.chance, kind: Node.Kind.discrete)
+            try rainNode.setNumberOfStates(2)
+            self.isRainingNode = rainNode
             
             // grassWet node
             let grassWetNode = try newDomain.newNode(category: Node.Category.chance, kind: Node.Kind.discrete)
@@ -43,10 +43,10 @@ class HuginDecisionEngine: ObservableObject {
             self.grassWetNode = grassWetNode
             
             // link the nodes
-            try sprinklerNode.addParent(rainNode)
             try grassWetNode.addParent(rainNode)
             try grassWetNode.addParent(sprinklerNode)
-                        
+            try sprinklerNode.addParent(rainNode)
+            
             // PROBABILITY TABLES
             // note: 0th state corresponds to true, 1st state to false, to match the hugin GUI
             let rainTable = try rainNode.getTable()
@@ -120,9 +120,9 @@ class HuginDecisionEngine: ObservableObject {
             }
             
             outputLog += "\nCalculated Probabilities\n"
+            outputLog += String(format: "GrassWet:\n  true:  %.2f%\n  false: %.2f%\n", probGrassWetTrue * 100, probGrassWetFalse * 100)
             outputLog += String(format: "IsRaining:\n true:  %.2f%\n false: %.2f%\n\n", probIsRainingTrue * 100, probIsRainingFalse * 100)
             outputLog += String(format: "SprinklerOn:\n true:  %.2f%\n false: %.2f%\n\n", probSprinklerTrue * 100, probSprinklerFalse * 100)
-            outputLog += String(format: "GrassWet:\n  true:  %.2f%\n  false: %.2f%\n", probGrassWetTrue * 100, probGrassWetFalse * 100)
             
         } catch {
             outputLog = "Inference error: \(error)"
